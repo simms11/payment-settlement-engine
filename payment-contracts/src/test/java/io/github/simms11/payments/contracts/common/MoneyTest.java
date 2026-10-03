@@ -2,6 +2,7 @@ package io.github.simms11.payments.contracts.common;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -23,10 +24,10 @@ class MoneyTest {
     }
 
     @Test
-    void acceptsTrailingZerosBeyondFourDecimalPlaces() {
+    void acceptsTrailingZerosBeyondMinorUnits() {
         Money money = new Money(new BigDecimal("1.230000"), Currency.EUR);
 
-        assertThat(money.amount()).isEqualTo(new BigDecimal("1.2300"));
+        assertThat(money.amount()).isEqualTo(new BigDecimal("1.23"));
     }
 
     @ParameterizedTest
@@ -37,11 +38,12 @@ class MoneyTest {
                 .withMessageContaining("greater than zero");
     }
 
-    @Test
-    void rejectsMoreThanFourDecimalPlaces() {
+    @ParameterizedTest
+    @EnumSource(Currency.class)
+    void rejectsMoreDecimalPlacesThanTheCurrencyAllows(Currency currency) {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> new Money(new BigDecimal("1.23456"), Currency.GBP))
-                .withMessageContaining("4 decimal places");
+                .isThrownBy(() -> new Money(new BigDecimal("1.234"), currency))
+                .withMessageContaining("more than 2 decimal places");
     }
 
     @Test
@@ -56,7 +58,7 @@ class MoneyTest {
         String json = jsonMapper.writeValueAsString(new Money(new BigDecimal("100"), Currency.GBP));
 
         assertThat(json).isEqualTo("""
-                {"amount":"100.0000","currency":"GBP"}""");
+                {"amount":"100.00","currency":"GBP"}""");
     }
 
     @Test
