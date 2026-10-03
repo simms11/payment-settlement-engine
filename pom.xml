@@ -22,7 +22,7 @@
     <description>Choreographed saga of payment services communicating via Kafka, using the transactional outbox and Debezium CDC</description>
 
     <modules>
-        <!-- Added as each module is created: payment-contracts, payment-gateway, compliance-service, core-ledger -->
+        <module>payment-contracts</module>
     </modules>
 
     <properties>
